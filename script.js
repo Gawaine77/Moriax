@@ -293,3 +293,58 @@ window.addEventListener('load', () => {
         }, 500);
     }, 1000);
 });
+
+// Contact Form Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const contactForm = document.getElementById('contactForm');
+    const formStatus = document.getElementById('formStatus');
+    
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show loading status
+            showFormStatus('loading', 'Sending message...');
+            
+            // Get form data
+            const formData = new FormData(contactForm);
+            const formObject = {};
+            formData.forEach((value, key) => {
+                formObject[key] = value;
+            });
+            
+            // Send email using Formspree
+            fetch(contactForm.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formObject)
+            })
+            .then(response => {
+                if (response.ok) {
+                    showFormStatus('success', 'Message sent successfully! I\'ll get back to you soon.');
+                    contactForm.reset();
+                } else {
+                    throw new Error('Failed to send message');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showFormStatus('error', 'Failed to send message. Please try again or email me directly at contact@moriax.com');
+            });
+        });
+    }
+    
+    function showFormStatus(type, message) {
+        formStatus.className = `form-status ${type}`;
+        formStatus.textContent = message;
+        
+        // Auto-hide success message after 5 seconds
+        if (type === 'success') {
+            setTimeout(() => {
+                formStatus.style.display = 'none';
+            }, 5000);
+        }
+    }
+});
